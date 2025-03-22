@@ -1,14 +1,12 @@
-const {MongoClient} = require('mongodb');
+const { MongoClient } = require('mongodb');
 
-async function main()
- {
+async function main() {
     //Replace <connection-string> with your MongoDB URI
-    const uri = "mongobd://localhost:27017"
+    const uri = "mongodb://localhost:27017"
     const client = new MongoClient(uri);
 
-    try
-    {
-        await client .connect();
+    try {
+        await client.connect();
         console.log("Connected to MongoDB!");
 
         const db = client.db ("testDB");
@@ -21,13 +19,9 @@ async function main()
        //Query the document
        const result = await collection.findOne({ name: "Alice"});
        console.log("Query result:", result);
-    } 
-    catch (err) 
-    {
+    } catch (err)  {
         console.error("Error:", err);
-    }
-    finally
-    {
+    } finally{
         await client.close();
     }
 }
