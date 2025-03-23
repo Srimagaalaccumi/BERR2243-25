@@ -5,11 +5,13 @@ async function main() {
     const uri = "mongodb://localhost:27017"
     const client = new MongoClient(uri);
 
+    console.time("MongoDB Connection Time"); // Start time tracking
+
     try {
         
-      
-        
+        await client.connect();        
         console.log("Connected to MongoDB!");
+        console.timeEnd("MongoDB Connection Time"); // End time tracking
 
         const db = client.db ("testDB");
         const collection = db.collection("users");
