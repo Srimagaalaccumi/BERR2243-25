@@ -7,7 +7,7 @@ async function main() {
 
     try {
         
-       await client.connect();
+      
         
         console.log("Connected to MongoDB!");
 
