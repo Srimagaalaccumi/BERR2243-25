@@ -16,8 +16,9 @@
     "url": "https://github.com/Srimagaalaccumi/BERR2243-25/issues"
   },
   "homepage": "https://github.com/Srimagaalaccumi/BERR2243-25#readme",
-  "description": "",
   "dependencies": {
     "mongodb": "^6.15.0"
-  }
+  },
+  "devDependencies": {},
+  "description": ""
 }
