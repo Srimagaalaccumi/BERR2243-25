@@ -44,16 +44,19 @@ async function main() {
 
     drivers.forEach(async (driver) => {
         const result = await driversCollection.insertOne(driver);
-        console.log('New driver created with result: ${result}');
-        
+        console.log(`New driver created with result: ${result}`);
     });   
 
-    const availableDrivers = await db.collection('drivers').find({
-        isAvailable: true,
-        rating: {$gte: 4.5}
-    }).toArray();
-    console.log("Available drivers:", availableDrivers);
-  
+    const updateResult = await db.collection('drivers').updateOne(
+        {name: "John Doe"},
+        {$inc: {rating: 0.1} }
+    );
+    console.log(`Driver updated with result: ${updateResult}`);
+
+    // Fetch and log John Doe's updated data
+    const updatedJohnDoe = await db.collection('drivers').findOne({ name: "John Doe" });
+    console.log("John Doe's updated data:", updatedJohnDoe);
+
   } finally {
     await client.close(); // Ensure MongoDB closes after all insertions
     console.timeEnd("MongoDB Connection Time");
