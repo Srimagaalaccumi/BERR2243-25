@@ -53,6 +53,10 @@ async function main() {
     );
     console.log(`Driver updated with result: ${updateResult}`);
 
+    // Fetch and log John Doe's updated data
+    const updatedJohnDoe = await db.collection('drivers').findOne({ name: "John Doe" });
+    console.log("John Doe's updated data:", updatedJohnDoe);
+
   } finally {
     await client.close(); // Ensure MongoDB closes after all insertions
     console.timeEnd("MongoDB Connection Time");
