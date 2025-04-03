@@ -57,6 +57,12 @@ async function main() {
     const updatedJohnDoe = await db.collection('drivers').findOne({ name: "John Doe" });
     console.log("John Doe's updated data:", updatedJohnDoe);
 
+
+    const deleteResult = await db.collection('drivers').deleteOne({ isAvailable: false });
+    console.log(`Driver deleted with result: ${deleteResult.deletedCount}`);
+    
+
+
   } finally {
     await client.close(); // Ensure MongoDB closes after all insertions
     console.timeEnd("MongoDB Connection Time");
