@@ -58,7 +58,7 @@ async function main() {
     console.log("John Doe's updated data:", updatedJohnDoe);
 
 
-    const deleteResult = await db.collection('drivers').deleteOne({ isAvailable: false });
+    const deleteResult = await db.collection('drivers').deleteMany({ isAvailable: false });
     console.log(`Driver deleted with result: ${deleteResult.deletedCount}`);
     
 
