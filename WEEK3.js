@@ -68,3 +68,21 @@ app.patch('/rides', async (req, res) => {
         res.status(400).json({ error: "Invalid ride ID or data"});
     }
 });
+
+//DELETE /rides/:id – Cancel a Ride
+app.patch('/rides', async (req, res) => {
+    try {
+        const result = await db.collection('rides').deleteteOne(
+            {_id: new ObjectId(req.params.id ) },
+        );
+
+        if (result.deleteCount === 0) {
+            return res.status(404).json({ error: "Rides not found"});
+        }
+        res,status(200).json( {updated: result.deleteCount });
+
+    }catch (err) {
+        
+        res.status(400).json({ error: "Invalid ride ID "});
+    }
+});
