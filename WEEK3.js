@@ -70,7 +70,7 @@ app.patch('/rides', async (req, res) => {
 });
 
 //DELETE /rides/:id – Cancel a Ride
-app.patch('/rides', async (req, res) => {
+app.delete('/rides', async (req, res) => {
     try {
         const result = await db.collection('rides').deleteteOne(
             {_id: new ObjectId(req.params.id ) },
