@@ -59,7 +59,7 @@ app.patch('/rides', async (req, res) => {
         );
 
         if (result.modifiedCount === 0) {
-            return res.status(404).json({ error: "Rides ni found"});
+            return res.status(404).json({ error: "Rides not found"});
         }
         res,status(200).json( {updated: result.modifiedCount });
 
