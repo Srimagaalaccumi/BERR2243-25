@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const port = 3000;
 
 const app = express();
@@ -48,4 +48,23 @@ app.post('/rides', async (req, res) =>{
         res.status(400).json({ error: "Invalid ride data"});
     }
 
+});
+
+// PATCH /rides/:id - UPDATE ride status
+app.patch('/rides', async (req, res) => {
+    try {
+        const result = await db.collection('rides').updateOne(
+            {_id: new ObjectId(req.params.id ) },
+            { $set: { status: req.bodystatus } }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ error: "Rides ni found"});
+        }
+        res,status(200).json( {updated: result.modifiedCount });
+
+    }catch (err) {
+        //HANDLE INVALID ID FORMAT OR DB ERRORS
+        res.status(400).json({ error: "Invalid ride ID or data"});
+    }
 });
