@@ -51,7 +51,7 @@ app.post('/rides', async (req, res) =>{
 });
 
 // PATCH /rides/:id - UPDATE ride status
-app.patch('/rides', async (req, res) => {
+app.patch('/rides/:id', async (req, res) => {
     try {
         const result = await db.collection('rides').updateOne(
             {_id: new ObjectId(req.params.id ) },
@@ -61,7 +61,7 @@ app.patch('/rides', async (req, res) => {
         if (result.modifiedCount === 0) {
             return res.status(404).json({ error: "Rides not found"});
         }
-        res,status(200).json( {updated: result.modifiedCount });
+        res.status(200).json( {updated: result.modifiedCount });
 
     }catch (err) {
         //HANDLE INVALID ID FORMAT OR DB ERRORS
@@ -70,16 +70,16 @@ app.patch('/rides', async (req, res) => {
 });
 
 //DELETE /rides/:id – Cancel a Ride
-app.delete('/rides', async (req, res) => {
+app.delete('/rides/ : id', async (req, res) => {
     try {
-        const result = await db.collection('rides').deleteteOne(
+        const result = await db.collection('rides').deleteOne(
             {_id: new ObjectId(req.params.id ) },
         );
 
         if (result.deleteCount === 0) {
             return res.status(404).json({ error: "Rides not found"});
         }
-        res,status(200).json( {updated: result.deleteCount });
+        res.status(200).json( {updated: result.deleteCount });
 
     }catch (err) {
         
@@ -96,7 +96,7 @@ app.put('/rides/:id', async (req, res) => {
         );
 
         if (result.modifiedCount === 0) {
-            return res.status(404).json({ error: "Ride not found or status unchanged" });
+            return res.status(404).json({ error: "Status unchanged" });
         }
 
         res.status(200).json({ updated: result.modifiedCount });
