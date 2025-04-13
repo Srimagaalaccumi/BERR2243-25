@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rides Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    button {
+      padding: 6px 10px;
+      margin: 0 3px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .edit-btn {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .save-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #f44336;
+      color: white;
+    }
+
+    #error {
+      color: red;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚕 Rides Dashboard</h1>
+
+  <div id="error"></div>
+
+  <table id="ridesTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Pickup</th>
+        <th>Destination</th>
+        <th>Driver ID</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const API_URL = "http://localhost:3000/rides";
+
+    async function fetchRides() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        renderTable(data);
+      } catch (err) {
+        document.getElementById("error").textContent = "❌ Error: " + err.message;
+      }
+    }
+
+    function renderTable(rides) {
+      const tbody = document.querySelector("#ridesTable tbody");
+      tbody.innerHTML = "";
+
+      rides.forEach(ride => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+          <td>${ride._id}</td>
+          <td><input type="text" value="${ride.pickupLocation}" disabled></td>
+          <td><input type="text" value="${ride.destination}" disabled></td>
+          <td><input type="text" value="${ride.driverID}" disabled></td>
+          <td><input type="text" value="${ride.status}" disabled></td>
+          <td>
+            <button class="edit-btn" onclick="toggleEdit(this, '${ride._id}')">✏️ Edit</button>
+            <button class="delete-btn" onclick="deleteRide('${ride._id}')">🗑️ Delete</button>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+
+    async function deleteRide(id) {
+      try {
+        await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        fetchRides(); // refresh
+      } catch (err) {
+        alert("Error deleting ride: " + err.message);
+      }
+    }
+
+    async function toggleEdit(button, id) {
+      const row = button.closest("tr");
+      const inputs = row.querySelectorAll("input");
+
+      if (button.textContent.includes("Edit")) {
+        // Enable editing
+        inputs.forEach(input => input.disabled = false);
+        button.textContent = "💾 Save";
+        button.classList.remove("edit-btn");
+        button.classList.add("save-btn");
+      } else {
+        // Save changes
+        const updatedRide = {
+          pickupLocation: inputs[0].value,
+          destination: inputs[1].value,
+          driverID: inputs[2].value,
+          status: inputs[3].value
+        };
+
+        try {
+          await fetch(`${API_URL}/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedRide)
+          });
+          fetchRides();
+        } catch (err) {
+          alert("Error updating ride: " + err.message);
+        }
+      }
+    }
+
+    fetchRides(); // Load on page start
+  </script>
+
+</body>
+</html>
