@@ -1,103 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Rides Dashboard</title>
+  <meta charset="UTF-8" />
+  <title>🚗 Rides Dashboard</title>
   <style>
     body {
+      margin: 0;
+      padding: 40px;
       font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
-      background-color: #f0f2f5;
+      background: linear-gradient(to right, #1f4037, #99f2c8);
+      color: #fff;
     }
 
     h1 {
-      color: #333;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      color: #ffffff;
+      text-shadow: 2px 2px #333;
+    }
+
+    .table-container {
+      max-width: 1100px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      border-radius: 16px;
+      overflow: hidden;
     }
 
     table {
-      border-collapse: collapse;
       width: 100%;
-      background-color: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: rgba(255, 255, 255, 0.1);
     }
 
     th, td {
-      padding: 12px 16px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
+      padding: 16px;
+      text-align: center;
     }
 
     th {
-      background-color: #4CAF50;
-      color: white;
+      font-size: 1rem;
+      color: #ffeb3b;
+      letter-spacing: 1px;
+    }
+
+    td {
+      font-size: 0.95rem;
+      color: #090909;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     tr:hover {
-      background-color: #f1f1f1;
+      background: rgba(255, 255, 255, 0.1);
+      transition: 0.3s ease;
     }
 
-    button {
-      padding: 6px 10px;
-      margin: 0 3px;
+    input {
+      background: transparent;
       border: none;
-      border-radius: 5px;
+      color: #fff;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    input:disabled {
+      color: #0b0b0b;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .action-buttons button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
       cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
     }
 
     .edit-btn {
-      background-color: #2196F3;
-      color: white;
+      background-color: #2196f3;
+      color: #121111;
+    }
+
+    .edit-btn:hover {
+      background-color: #1976d2;
     }
 
     .save-btn {
-      background-color: #4CAF50;
-      color: white;
+      background-color: #7f897f;
+      color: #000000;
+    }
+
+    .save-btn:hover {
+      background-color: #388e3c;
     }
 
     .delete-btn {
       background-color: #f44336;
-      color: white;
+      color: #fff;
+    }
+
+    .delete-btn:hover {
+      background-color: #c62828;
     }
 
     #error {
-      color: red;
-      margin: 10px 0;
+      text-align: center;
+      color: #ff5252;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🚕 Rides Dashboard</h1>
-
-  <div id="error"></div>
-
-  <table id="ridesTable">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Pickup</th>
-        <th>Destination</th>
-        <th>Driver ID</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <h1>🌟 Fancy Rides Dashboard</h1>
+  <div class="table-container">
+    <div id="error"></div>
+    <table id="ridesTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Pickup</th>
+          <th>Destination</th>
+          <th>Driver ID</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Table data will be injected here -->
+      </tbody>
+    </table>
+  </div>
 
   <script>
     const API_URL = "http://localhost:3000/rides";
 
-    async function fetchRides() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        renderTable(data);
-      } catch (err) {
-        document.getElementById("error").textContent = "❌ Error: " + err.message;
-      }
+    function fetchRides() {
+      fetch(API_URL)
+        .then(res => res.json())
+        .then(data => renderTable(data))
+        .catch(err => {
+          document.getElementById("error").textContent = "❌ Error fetching rides: " + err;
+        });
     }
 
     function renderTable(rides) {
@@ -106,44 +163,31 @@
 
       rides.forEach(ride => {
         const row = document.createElement("tr");
-
         row.innerHTML = `
           <td>${ride._id}</td>
           <td><input type="text" value="${ride.pickupLocation}" disabled></td>
           <td><input type="text" value="${ride.destination}" disabled></td>
           <td><input type="text" value="${ride.driverID}" disabled></td>
           <td><input type="text" value="${ride.status}" disabled></td>
-          <td>
-            <button class="edit-btn" onclick="toggleEdit(this, '${ride._id}')">✏️ Edit</button>
-            <button class="delete-btn" onclick="deleteRide('${ride._id}')">🗑️ Delete</button>
+          <td class="action-buttons">
+            <button class="edit-btn" onclick="toggleEdit(this, '${ride._id}')">Edit</button>
+            <button class="delete-btn" onclick="deleteRide('${ride._id}')">Delete</button>
           </td>
         `;
-
         tbody.appendChild(row);
       });
     }
 
-    async function deleteRide(id) {
-      try {
-        await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-        fetchRides(); // refresh
-      } catch (err) {
-        alert("Error deleting ride: " + err.message);
-      }
-    }
-
-    async function toggleEdit(button, id) {
+    function toggleEdit(button, id) {
       const row = button.closest("tr");
       const inputs = row.querySelectorAll("input");
 
-      if (button.textContent.includes("Edit")) {
-        // Enable editing
+      if (button.textContent === "Edit") {
         inputs.forEach(input => input.disabled = false);
-        button.textContent = "💾 Save";
+        button.textContent = "Save";
         button.classList.remove("edit-btn");
         button.classList.add("save-btn");
       } else {
-        // Save changes
         const updatedRide = {
           pickupLocation: inputs[0].value,
           destination: inputs[1].value,
@@ -151,21 +195,25 @@
           status: inputs[3].value
         };
 
-        try {
-          await fetch(`${API_URL}/${id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedRide)
-          });
-          fetchRides();
-        } catch (err) {
-          alert("Error updating ride: " + err.message);
-        }
+        fetch(`${API_URL}/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedRide)
+        })
+        .then(res => res.json())
+        .then(() => fetchRides())
+        .catch(err => alert("❌ Error updating ride: " + err));
       }
     }
 
-    fetchRides(); // Load on page start
-  </script>
+    function deleteRide(id) {
+      fetch(`${API_URL}/${id}`, { method: "DELETE" })
+        .then(res => res.json())
+        .then(() => fetchRides())
+        .catch(err => alert("❌ Error deleting ride: " + err));
+    }
 
+    fetchRides();
+  </script>
 </body>
 </html>
