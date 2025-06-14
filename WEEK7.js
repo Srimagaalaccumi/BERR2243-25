@@ -81,15 +81,15 @@ app.get('/analytics/passengers', async (req, res) => {
           avgDistance: { $avg: '$rides.distance' }
         }
       },
-      {
-        $project: {
-          _id: 1, // <-- SHOW _id like MongoDB Compass
-          name: 1,
-          totalRides: 1,
-          totalFare: { $round: ['$totalFare', 2] },
-          avgDistance: { $round: ['$avgDistance', 2] }
-        }
-      }
+      //{
+        //$project: {
+         // _id: 1, // <-- SHOW _id like MongoDB Compass
+         // name: 1,
+         // totalRides: 1,
+         // totalFare: { $round: ['$totalFare', 2] },
+         //avgDistance: { $round: ['$avgDistance', 2] }
+       // }
+      //}
     ]).toArray();
 
     res.status(200).json(result);
