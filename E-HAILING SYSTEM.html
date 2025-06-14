@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passenger Ride Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* Global Styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #000000; /* Black text */
+            background-color: #FFFFFF; /* White background */
+        }
+
+        h1 {
+            text-align: center;
+            color: #1E88E5; /* Blue color for title */
+            margin-top: 40px;
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        /* Container for Dashboard Widgets */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 40px auto;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        /* Stats Container */
+        .stats-container {
+            background: #E8F9FF; /* Light blue background for widgets */
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            width: 22%;
+            margin-bottom: 30px;
+            color: #1E88E5; /* Blue text for stats */
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stats-container:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .stats-container h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+        }
+
+        .stats-container p {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        /* Chart and Table Containers */
+        .chart-container,
+        .table-container {
+            background: #E8F9FF; /* Light blue background for charts and tables */
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 48%;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .chart-container:hover, .table-container:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 350px !important;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 18px;
+            text-align: center;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            background: #1E88E5; /* Blue for table header */
+            color: white;
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #F1F4FF; /* Light lavender for table rows */
+            color: black;
+        }
+
+        tr:hover td {
+            background-color: #D0E4FF;
+            cursor: pointer;
+        }
+
+        /* Button Styling */
+        .btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #1E88E5; /* Blue color for buttons */
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #1565C0; /* Darker blue hover effect */
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .stats-container,
+            .chart-container,
+            .table-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Passenger Ride Analytics Dashboard</h1>
+
+    <div class="container">
+        <!-- Stats Container -->
+        <div class="stats-container">
+            <h3>Statistics</h3>
+            <p id="totalPassengers">Total Passengers: Loading...</p>
+            <p id="averageFare">Average Fare: Loading...</p>
+            <p id="averageDistance">Average Distance: Loading...</p>
+        </div>
+
+        <!-- Bar Chart Container -->
+        <div class="chart-container">
+            <canvas id="ridesChart"></canvas>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-container">
+            <table id="passengerTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Total Rides</th>
+                        <th>Total Fare (RM)</th> <!-- Updated to RM -->
+                        <th>Average Distance (km)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" class="loading">Loading data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="btn-container">
+        <a href="#" class="btn">Refresh Data</a>
+    </div>
+
+    <script>
+        // Sample passenger data
+        const passengers = [
+            { "name": "Alice", "totalRides": 2, "totalFare": 37.8, "avgDistance": 10.35 },
+            { "name": "Bob", "totalRides": 1, "totalFare": 18.75, "avgDistance": 9.8 }
+        ];
+
+        // Function to calculate statistics
+        function calculateStatistics(passengers) {
+            const totalRides = passengers.reduce((acc, passenger) => acc + passenger.totalRides, 0);
+            const totalFare = passengers.reduce((acc, passenger) => acc + passenger.totalFare, 0);
+            const totalDistance = passengers.reduce((acc, passenger) => acc + passenger.avgDistance, 0);
+
+            const totalPassengers = passengers.length;
+            const avgFare = totalFare / totalPassengers;
+            const avgDistance = totalDistance / totalPassengers;
+
+            document.getElementById("totalPassengers").innerText = `Total Passengers: ${totalPassengers}`;
+            document.getElementById("averageFare").innerText = `Average Fare: RM${avgFare.toFixed(2)}`; // Updated to RM
+            document.getElementById("averageDistance").innerText = `Average Distance: ${avgDistance.toFixed(2)} km`;
+        }
+
+        // Function to render the bar chart (Total Rides vs. Total Fare)
+        function renderBarChart(passengers) {
+            const names = passengers.map(p => p.name);
+            const totalRides = passengers.map(p => p.totalRides);
+            const totalFare = passengers.map(p => p.totalFare);
+
+            const ctx = document.getElementById('ridesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: names,
+                    datasets: [
+                        {
+                            label: 'Total Rides',
+                            data: totalRides,
+                            backgroundColor: 'rgba(196, 217, 255, 0.7)', /* Light blue */
+                            borderColor: 'rgba(196, 217, 255, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Total Fare (RM)',  /* Updated to RM */
+                            data: totalFare,
+                            backgroundColor: 'rgba(197, 186, 255, 0.7)', /* Soft lavender */
+                            borderColor: 'rgba(197, 186, 255, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to render the table
+        function renderTable(passengers) {
+            const tableBody = document.getElementById('passengerTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // Clear existing rows
+            passengers.forEach(passenger => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).innerText = passenger.name;
+                row.insertCell(1).innerText = passenger.totalRides;
+                row.insertCell(2).innerText = passenger.totalFare;
+                row.insertCell(3).innerText = passenger.avgDistance;
+            });
+        }
+
+        // On Page Load
+        window.onload = function() {
+            calculateStatistics(passengers);
+            renderBarChart(passengers);
+            renderTable(passengers);
+        }
+    </script>
+
+</body>
+</html>

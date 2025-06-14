@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Hailing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #f72585;
+            --sidebar-color: #1a1a2e;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        
+        .sidebar {
+            background-color: var(--sidebar-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            padding-top: 20px;
+            width: 250px;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+            padding: 12px 20px;
+            transition: all 0.3s;
+            border-radius: 0;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .dashboard-header {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 8px 8px 0 0 !important;
+        }
+        
+        .stat-card {
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 5px 0;
+            color: var(--dark-color);
+        }
+        
+        .stat-card .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .stat-card .stat-change {
+            font-size: 0.8rem;
+            color: #28a745;
+        }
+        
+        .stat-card .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.1);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            font-weight: 500;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        .badge-success {
+            background-color: var(--success-color);
+        }
+        
+        .badge-warning {
+            background-color: var(--warning-color);
+        }
+        
+        .badge-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            padding: 15px;
+        }
+        
+        .logo {
+            padding: 20px;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+        
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: auto;
+        }
+        
+        .admin-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .admin-info {
+            line-height: 1.2;
+        }
+        
+        .admin-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .admin-role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        .passenger-table th, .passenger-table td {
+            padding: 12px 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar d-flex flex-column">
+        <div class="logo">
+            <i class="fas fa-taxi"></i> E-Hailing
+        </div>
+        <ul class="nav flex-column flex-grow-1">
+            <li class="nav-item">
+                <a class="nav-link active" href="#">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-users"></i> Passengers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-route"></i> Rides
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-map-marker-alt"></i> Locations
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-money-bill-wave"></i> Payments
+                </a>
+            </li>
+        </ul>
+        <div class="admin-profile">
+            <img src="https://ui-avatars.com/api/?name=Admin+User&background=4361ee&color=fff" alt="Admin">
+            <div class="admin-info">
+                <div class="admin-name">Administrator</div>
+                <div class="admin-role">Admin User</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h1 class="h4 mb-0">Dashboard</h1>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Total Passengers</div>
+                    <div class="stat-change">
+                        <i class="fas fa-caret-up text-success"></i> 3% from last month
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Total Rides</div>
+                    <div class="stat-change">
+                        <i class="fas fa-caret-up text-success"></i> 3% from last month
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-value">RM56.55</div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-change">
+                        <i class="fas fa-caret-up text-success"></i> 3% from last month
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-value">10.07 km</div>
+                    <div class="stat-label">Avg. Distance</div>
+                    <div class="stat-change">
+                        <i class="fas fa-caret-up text-success"></i> 4.9% from last month
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-2"></i> Ride Activity
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="ridesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie me-2"></i> Ride Status
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-users me-2"></i> Passenger Analytics
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table passenger-table">
+                                <thead>
+                                    <tr>
+                                        <th>PASSENGER</th>
+                                        <th>TOTAL RIDES</th>
+                                        <th>TOTAL FARE (RM)</th>
+                                        <th>AVG. DISTANCE</th>
+                                        <th>AVG. FARE/RIDE</th>
+                                        <th>STATUS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Bob</strong></td>
+                                        <td>1</td>
+                                        <td>RM18.75</td>
+                                        <td>9.80 km</td>
+                                        <td>RM18.75</td>
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Alice</strong></td>
+                                        <td>2</td>
+                                        <td>RM37.80</td>
+                                        <td>10.35 km</td>
+                                        <td>RM18.90</td>
+                                        <td><span class="badge badge-success">Active</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ride Activity Chart
+        const ridesCtx = document.getElementById('ridesChart').getContext('2d');
+        const ridesChart = new Chart(ridesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Completed Rides',
+                    data: [2, 3, 4, 5, 3, 2],
+                    backgroundColor: '#4361ee',
+                    borderColor: '#4361ee',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }, {
+                    label: 'Cancelled Rides',
+                    data: [1, 1, 0, 1, 0, 1],
+                    backgroundColor: '#f72585',
+                    borderColor: '#f72585',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                }
+            }
+        });
+
+        // Ride Status Pie Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        const statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Cancelled', 'In Progress'],
+                datasets: [{
+                    data: [2, 1, 0],
+                    backgroundColor: [
+                        '#4cc9f0',
+                        '#f72585',
+                        '#f8961e'
+                    ],
+                    borderWidth: 0,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
